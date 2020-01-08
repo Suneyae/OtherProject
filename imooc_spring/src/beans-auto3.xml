@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+
+	xsi:schemaLocation="
+	http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-4.0.xsd
+	http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.0.xsd">
+	
+	
+	<!-- aop测试,需要引入aop命名空间 -->
+	<aop:aspectj-autoproxy></aop:aspectj-autoproxy>
+	
+	<!-- 切点 ，即自己的业务逻辑类Service或者DAO等 -->
+	<bean id="calculatorImplxml" class="com.aop.xmltype.CalculatorImplxml"></bean>
+	<!-- 切面，即记日记的类 -->
+	<bean id="diary" class="com.aop.xmltype.Diary"></bean>
+
+	<aop:config>
+
+		<aop:aspect id="diary" ref="diary">
+			<!-- 无效 -->
+			<aop:pointcut expression="execution (* com.aop.xmltype.CalculatorImplxml.*(..))" 
+				id="myownpointcut"/>
+				
+			<!-- 无效 -->
+			<aop:before method="myBegin"  pointcut-ref="myownpointcut" />
+			<aop:after  method="myEnd"    pointcut-ref="myownpointcut"/>
+			
+		</aop:aspect>
+		
+		<!-- 配置切面和通知 ，aop:aspect标签需要通过ref指定配置好的bean，id随便配置或者不配置，id的值可以随意起 -->
+		<!-- <aop:aspect id="myaspxml" ref="diary" >
+			配置切点，即 要被记日记的对象， aop:pointcut 放在这儿也可以 ,切点不需要根对应的bean相关联，
+			 只要expression指定的方法所在的类被Spring扫描得到就行，即只要所在的类配置了bean就可以
+			<aop:pointcut expression="execution (* com.aop.xmltype.CalculatorImplxml.*(..))"
+				id="pointcut1" />
+			切面里的具体的用于记录的方法就是一个通知，需要用通过pointcut-ref来指定具体的切点，
+			<aop:before method="myBegin" pointcut-ref="pointcut1" />
+			<aop:after method="myEnd" pointcut-ref="pointcut1" />
+		</aop:aspect> -->
+
+	</aop:config>
+	
+	
+	
+
+</beans>

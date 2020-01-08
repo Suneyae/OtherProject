@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+
+	xsi:schemaLocation="
+	http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-4.0.xsd
+	http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.0.xsd">
+	<bean id="moocAppctx" class="imooc_spring.test.aware.MoocApplicationContext"
+		init-method="hhhh">
+	</bean>
+
+	<!-- 引入db.properties -->
+	<context:property-placeholder location="classpath:db.properties" />
+
+	<!-- 配置C3P0数据源 -->
+	<bean id="dataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource">
+		<property name="jdbcUrl" value="${jdbc.url}"></property>
+		<property name="driverClass" value="${jdbc.driverName}"></property>
+		<property name="user" value="${jdbc.username}"></property>
+		<property name="password" value="${jdbc.pwd}"></property>
+	</bean>
+
+	<!-- 配置 Spring 的 org.springframework.jdbc.core.JdbcTemplate -->
+	<bean id="jdbcTemplate" class="org.springframework.jdbc.core.JdbcTemplate">
+		<property name="dataSource" ref="dataSource"></property>
+	</bean>
+
+	<bean id="moocBeanNameAware" class="imooc_spring.test.aware.MoocBeanNameAware"></bean>
+
+	<!-- 测试 SpEL: 可以为属性进行动态的赋值(了解) -->
+	<bean id="girl" class="com.helloworld.User">
+		<property name="userName" value="周迅"></property>
+	</bean>
+
+	<!-- <bean id="boy" class="com.helloworld.User" init-method="init" destroy-method="destroy"> 
+		<property name="userName" value="高胜远"></property> <property name="wifeName" 
+		value="#{girl.userName}"></property> </bean> -->
+
+	<bean id="girl2" class="com.helloworld.User2">
+		<property name="userName" value="Talor Swift"></property>
+	</bean>
+
+	<!-- autowired测试，自动装配测试 -->
+	<bean id="people" class="test.spring.autowired.Person" scope="prototype"
+		autowire="byName">
+		<property name="name" value="小明"></property>
+		<!-- <property name="cat" ref="cat222"></property> -->
+		<!-- <property name="cat" ref="cat1"></property> -->
+	</bean>
+
+	<bean id="cat" class="test.spring.autowired.Cat" scope="prototype">
+		<property name="name" value="波斯猫"></property>
+	</bean>
+	<!-- <bean id="cat222" class="test.spring.autowired.Cat"> <property name="name" 
+		value="我是小喵喵"></property> </bean> -->
+
+
+
+	<bean id="people2" class="test.spring.autowired.Person" scope="prototype"
+		autowire="byName">
+		<property name="name" value="小明"></property>
+		<property name="cat" ref="cat222"></property>
+	</bean>
+
+	<bean id="cat222" class="test.spring.autowired.Cat" scope="prototype">
+		<property name="name" value="波斯猫"></property>
+	</bean>
+
+	<!--context:component-scan 指定 扫描的包 -->
+	<!--可以通过 resource-pattern 指定扫描的资源, resource-pattern="myrepository/*.class" 
+		的含义： 只扫描 base-package 对应包下的 目录为 myrepository 的所有java Bean -->
+	<!-- <context:component-scan base-package="imooc_spring.test.anotation" 
+		resource-pattern="myrepository/*.class"></context:component-scan> -->
+
+	<!-- context:exclude-filter type="annotation" expression="org.springframework.stereotype.Repository" 
+		子节点指定排除哪些注解 context:include-filter type="annotation" 需要结合context:component-scan 
+		标签的 use-default-filters="false"来使用 context:exclude-filter type="assignable" 
+		这个expression指的是自己写的类，意思排除哪些类 expression="imooc_spring.test.anotation.TestObj" -->
+	<context:component-scan base-package="imooc_spring.test.anotation">
+		<!-- <context:exclude-filter type="annotation" expression="org.springframework.stereotype.Repository" 
+			/> -->
+
+		<!-- <context:exclude-filter type="assignable" expression="imooc_spring.test.anotation.TestObj" 
+			/> -->
+
+
+	</context:component-scan>
+	
+	<!-- aop测试,需要引入aop命名空间 -->
+	<aop:aspectj-autoproxy></aop:aspectj-autoproxy>
+</beans>

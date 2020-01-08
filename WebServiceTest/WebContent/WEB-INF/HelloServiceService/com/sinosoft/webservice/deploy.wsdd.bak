@@ -1,0 +1,34 @@
+<!-- Use this file to deploy some handlers/chains and services      -->
+<!-- Two ways to do this:                                           -->
+<!--   java org.apache.axis.client.AdminClient deploy.wsdd          -->
+<!--      after the axis server is running                          -->
+<!-- or                                                             -->
+<!--   java org.apache.axis.utils.Admin client|server deploy.wsdd   -->
+<!--      from the same directory that the Axis engine runs         -->
+
+<deployment
+    xmlns="http://xml.apache.org/axis/wsdd/"
+    xmlns:java="http://xml.apache.org/axis/wsdd/providers/java">
+
+  <!-- Services from HelloServiceService WSDL service -->
+
+  <service name="HelloService" provider="java:RPC" style="wrapped" use="literal">
+      <parameter name="wsdlTargetNamespace" value="http://webservice.sinosoft.com"/>
+      <parameter name="wsdlServiceElement" value="HelloServiceService"/>
+      <parameter name="schemaQualified" value="http://webservice.sinosoft.com"/>
+      <parameter name="wsdlServicePort" value="HelloService"/>
+      <parameter name="className" value="com.sinosoft.webservice.HelloServiceSoapBindingImpl"/>
+      <parameter name="wsdlPortType" value="HelloService"/>
+      <parameter name="typeMappingVersion" value="1.2"/>
+      <operation name="sayHello" qname="operNS:sayHello" xmlns:operNS="http://webservice.sinosoft.com" returnQName="retNS:sayHelloReturn" xmlns:retNS="http://webservice.sinosoft.com" returnType="rtns:string" xmlns:rtns="http://www.w3.org/2001/XMLSchema" soapAction="" >
+      </operation>
+      <operation name="sayHelloToPerson" qname="operNS:sayHelloToPerson" xmlns:operNS="http://webservice.sinosoft.com" returnQName="retNS:sayHelloToPersonReturn" xmlns:retNS="http://webservice.sinosoft.com" returnType="rtns:string" xmlns:rtns="http://www.w3.org/2001/XMLSchema" soapAction="" >
+        <parameter qname="pns:name" xmlns:pns="http://webservice.sinosoft.com" type="tns:string" xmlns:tns="http://www.w3.org/2001/XMLSchema"/>
+      </operation>
+      <operation name="sayHello2" qname="operNS:sayHello2" xmlns:operNS="http://webservice.sinosoft.com" returnQName="retNS:sayHello2Return" xmlns:retNS="http://webservice.sinosoft.com" returnType="rtns:string" xmlns:rtns="http://www.w3.org/2001/XMLSchema" soapAction="" >
+        <parameter qname="pns:name" xmlns:pns="http://webservice.sinosoft.com" type="tns:string" xmlns:tns="http://www.w3.org/2001/XMLSchema"/>
+      </operation>
+      <parameter name="allowedMethods" value="sayHello sayHelloToPerson sayHello2"/>
+
+  </service>
+</deployment>

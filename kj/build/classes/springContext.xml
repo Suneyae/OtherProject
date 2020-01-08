@@ -1,0 +1,99 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:jaxws="http://cxf.apache.org/jaxws" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:tx="http://www.springframework.org/schema/tx"
+    xmlns:aop="http://www.springframework.org/schema/aop" xmlns:context="http://www.springframework.org/schema/context"
+    xsi:schemaLocation="
+	http://www.springframework.org/schema/beans 
+	http://www.springframework.org/schema/beans/spring-beans-3.0.xsd 
+	http://www.springframework.org/schema/tx 
+	http://www.springframework.org/schema/tx/spring-tx-3.0.xsd
+	http://www.springframework.org/schema/context
+	http://www.springframework.org/schema/context/spring-context-3.0.xsd
+	http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-3.0.xsd
+    http://cxf.apache.org/jaxws http://cxf.apache.org/schemas/jaxws.xsd"
+    default-autowire="byName" default-lazy-init="true">
+
+	<!-- 定义使用annotation -->
+    <context:annotation-config />
+    <aop:aspectj-autoproxy />
+    <context:component-scan base-package="cn.sinobest.**.service,cn.sinobest.**.dao" />
+    <bean class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+        <property name="locations">
+            <value>classpath:sysconfig.properties</value>
+        </property>
+    </bean>
+    <bean id="jdbcTemplate" class="org.springframework.jdbc.core.JdbcTemplate">
+        <property name="dataSource" ref="dataSource" />
+    </bean>
+    <bean id="namedParameterJdbcTemplate" class="org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate">
+        <constructor-arg ref="dataSource" />
+    </bean>
+    <bean id="sqlSessionFactory" class="org.springframework.orm.ibatis3.SqlSessionFactoryBean">
+        <property name="configLocation" value="classpath:/configuration.xml" />
+        <property name="mapperLocations" value="classpath*:/cn/sinobest/**/dao/**/*Mapper.xml" />
+        <property name="dataSource" ref="dataSource" />
+    </bean>
+    <bean id="sqlSessionTemplate" class="org.springframework.orm.ibatis3.SqlSessionTemplate">
+        <property name="sqlSessionFactory" ref="sqlSessionFactory" />
+    </bean>
+    <tx:advice id="txAdvice" transaction-manager="transactionManager">
+        <tx:attributes>
+            <tx:method name="get*" propagation="SUPPORTS" read-only="true" />
+            <tx:method name="find*" propagation="SUPPORTS" read-only="true" />
+            <tx:method name="query*" propagation="SUPPORTS" read-only="true" />
+            <tx:method name="is*" propagation="SUPPORTS" read-only="true" />
+            <tx:method name="doService" propagation="REQUIRED" />
+            <tx:method name="savePoint*" propagation="NESTED" />
+            <tx:method name="auto*" propagation="REQUIRES_NEW" />
+            <tx:method name="*" rollback-for="Throwable" propagation="REQUIRED" />
+        </tx:attributes>
+    </tx:advice>
+    <aop:config>
+        <aop:pointcut id="serviceOpr" expression="execution(* cn.sinobest.*.service..*.*(..))" />
+        <aop:advisor advice-ref="txAdvice" pointcut-ref="serviceOpr" order="300" />
+    </aop:config>
+
+	<!-- <aop:config proxy-target-class="false">
+		<aop:advisor pointcut-ref="serviceOpr" advice-ref="sessionBeforeAdvice"
+			order="100" />
+		<aop:advisor pointcut-ref="serviceOpr" advice-ref="sessionAfterAdvice"
+			order="400" />
+	</aop:config> -->
+    <bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <property name="dataSource" ref="dataSource" />
+        <property name="globalRollbackOnParticipationFailure" value="false" />
+    </bean>
+
+<!-- 	<bean id="sessionBeforeAdvice"
+		class="cn.sinobest.framework.comm.transcation.SessionBeforeAdvice" />
+	<bean id="sessionAfterAdvice"
+		class="cn.sinobest.framework.comm.transcation.SessionAfterAdvice" /> -->
+    <bean id="cacheManager" class="cn.sinobest.framework.comm.cache.CacheManager" destroy-method="destroy" scope="singleton">
+        <constructor-arg>
+            <value>classpath:sysconfig.properties</value>
+        </constructor-arg>
+        <property name="dao" ref="commDAO" />
+    </bean>
+    <bean class="cn.sinobest.framework.util.Util" lazy-init="false" />
+
+	<!-- 
+    <import resource="classpath:META-INF/cxf/cxf.xml" />
+    <import resource="classpath:META-INF/cxf/cxf-servlet.xml" />
+    <bean id="securityInterceptor"  class="cn.sinobest.framework.webservice.BasicAuthAuthorizationInterceptor" />
+    <bean id="webService" class="cn.sinobest.framework.webservice.WebServiceImpl" scope="singleton" />
+    <jaxws:endpoint id="webServiceEndpoint" implementor="#webService" address="/services/WebService" > 
+        <jaxws:inInterceptors>
+            <ref bean="loggingInInterceptor"/>
+            <ref bean="loggingOutInterceptor"/>
+            <ref bean="securityInterceptor"/>
+            <ref bean="sAAJInInterceptor" />
+        </jaxws:inInterceptors>
+    </jaxws:endpoint>
+    
+    <bean id="loggingInInterceptor" class="org.apache.cxf.interceptor.LoggingInInterceptor" />
+    <bean id="loggingOutInterceptor" class="org.apache.cxf.interceptor.LoggingOutInterceptor" />
+    <bean id="sAAJInInterceptor" class="org.apache.cxf.binding.soap.saaj.SAAJInInterceptor" /> 
+    
+    
+	-->
+
+</beans>

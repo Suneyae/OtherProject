@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE struts PUBLIC
+    "-//Apache Software Foundation//DTD Struts Configuration 2.0//EN"
+    "http://struts.apache.org/dtds/struts-2.0.dtd">
+
+<struts>
+
+	<!--
+		<constant name="struts.enable.DynamicMethodInvocation" value="false"
+		/>
+	-->
+	<constant name="struts.convention.default.parent.package"
+		value="default" />
+	<constant name="struts.devMode" value="false" />
+	<constant name="struts.action.extension" value="action,do" />
+	<constant name="struts.enable.DynamicMethodInvocation" value="true" />
+	<constant name="struts.enable.SlashesInActionNames" value="true" />
+	<constant name="struts.freemarker.templatesCache" value="true" />
+	<!-- 自定义freemaker管理类，增加自定义扩展 -->
+	<constant name="struts.freemarker.manager.classname" 
+		value="cn.sinobest.framework.service.tags.FwFreemarkerManager" />
+		
+	<!--默认本地化 -->
+	<constant name="struts.loacl" value="zh_CN" />
+	<!-- 默认的国家化编码，解决中文乱码 -->
+	<!--<constant name="struts.il8n.encoding" value="GBK" />  -->
+	<!-- 配置上传文件体积最大值50Mb -->
+	<constant name="struts.multipart.maxSize" value="52428800" />
+
+	<constant name="struts.objectFactory" value="spring" />
+	<constant name="struts.convention.result.path" value="/jsp" />
+	<constant name="struts.convention.package.locators" value="sinobest" />
+	<constant name="struts.convention.action.name.separator" value="_" /> 
+	<constant name="struts.convention.action.fileProtocols" value="jar,zip" />
+	<constant name="struts.convention.action.includeJars" value=".*?/sinobestfw.*?jar(!/)?" />
+    <constant name="struts.convention.action.name.lowercase" value="true" />
+	
+	<!--  排除的包 -->
+	<constant name="struts.convention.exclude.packages"
+		value="com.opensymphony.xwork2.*,
+			   org.apache.struts.*,
+			   org.apache.struts2.*,
+			   org.springframework.web.struts.*,
+			   org.springframework.web.struts2.*" />
+			   
+	<package name="default" extends="convention-default">
+		<result-types>
+			<!-- 文件下载类型，如果超出指定大小，将预先压缩后下载 -->
+			<result-type name="file" class="cn.sinobest.framework.web.dispatcher.FileResult"></result-type>
+		</result-types>
+		<interceptors >
+			<interceptor name="appExcpetion" class="cn.sinobest.framework.web.interceptor.ExceptionInterceptor" />
+			<!-- 本拦截器自动处理响应请求后的资源回收工作-->
+			<interceptor name="cleanResult" class="cn.sinobest.framework.web.interceptor.CleanResultInterceptor" />
+			<!-- 本拦截器自动解析并处理excel上传文件-->
+			<interceptor name="autoUpload" class="cn.sinobest.framework.web.interceptor.AutoUploadInterceptor" />
+			<!-- 本拦截器控制本应用可同时处理上传下载 请求的数量-->
+			<interceptor name="impExpThreshold" class="cn.sinobest.framework.web.interceptor.ImpExpThresholdInterceptor" />
+			<interceptor name="checkLogin" class="cn.sinobest.framework.web.interceptor.CheckLoginInterceptor"></interceptor>
+			<interceptor-stack name="myStack">
+				<interceptor-ref name="impExpThreshold"/>
+                <interceptor-ref name="alias"/>
+                <interceptor-ref name="checkbox"/>
+                <interceptor-ref name="multiselect"/>
+                <interceptor-ref name="params">
+                    <param name="excludeParams">dojo\..*,^struts\..*</param>
+                </interceptor-ref>
+                <interceptor-ref name="servletConfig"/>
+                <interceptor-ref name="prepare"/>
+                <interceptor-ref name="chain"/>
+                <interceptor-ref name="modelDriven"/>
+                <interceptor-ref name="fileUpload"/>
+                <interceptor-ref name="staticParams"/>
+                <interceptor-ref name="actionMappingParams"/>
+                <interceptor-ref name="params">
+                    <param name="excludeParams">dojo\..*,^struts\..*</param>
+                </interceptor-ref>
+                <interceptor-ref name="conversionError"/>
+                <interceptor-ref name="workflow">
+                    <param name="excludeMethods">input,back,cancel,browse</param>
+                </interceptor-ref>
+				<interceptor-ref name="cleanResult" />
+				<interceptor-ref name="appExcpetion" />
+			</interceptor-stack>
+			<!-- 处理文件导入导出的拦截器堆栈 -->
+			<interceptor-stack name="impexpStack">
+				<interceptor-ref name="myStack" />
+				<interceptor-ref name="autoUpload" />
+			</interceptor-stack>
+			<interceptor-stack name="checkLoginStack">
+                <interceptor-ref name="myStack" />
+                <interceptor-ref name="checkLogin" />
+            </interceptor-stack>
+		</interceptors>
+		
+		<default-interceptor-ref name="myStack" />
+		
+		
+		<global-results>
+			<result name="error">/jsp/framework/error.jsp</result>
+			<result name="message">/jsp/framework/message.jsp</result>
+			<result name="success">/jsp/framework/success.jsp</result>
+			<result name="wait" >/jsp/framework/wait.jsp</result>
+		</global-results>
+		
+		
+		<!--全局异常映射 -->    
+        <global-exception-mappings>
+            
+            <exception-mapping result="message"   
+                exception="cn.sinobest.framework.comm.exception.AppMsgException">    
+            </exception-mapping>   
+            
+            <exception-mapping result="error"   
+                exception="cn.sinobest.framework.comm.exception.AppException">    
+            </exception-mapping>  
+
+        </global-exception-mappings>
+        
+		<action name="CommSave" class="cn.sinobest.framework.web.CommSaveAction" />
+		<action name="Workflow" class="cn.sinobest.framework.web.CommSaveAction" method="workflow"/>
+		<action name="CommUpload" class="cn.sinobest.framework.web.CommSaveAction" >
+			<interceptor-ref name="impexpStack">
+			</interceptor-ref>
+		</action>
+		
+		<action name="gltPage" class="cn.sinobest.framework.web.GltPageAction" >
+		    <interceptor-ref name="checkLoginStack" />
+			<result type="stream">
+				<param name="allowCaching">false</param>
+				<param name="contentType">text/html</param>
+				<param name="inputName">inputStream</param>
+			</result>
+		</action>
+		<action name="dictSearch" class="cn.sinobest.framework.web.DictSearchAction" >
+		    <interceptor-ref name="checkLoginStack" />
+			<result type="stream">
+				<param name="allowCaching">false</param>
+				<param name="contentType">text/html</param>
+				<param name="inputName">inputStream</param>
+			</result>
+		</action>
+		<action name="ajax" class="cn.sinobest.framework.web.AjaxAction">
+		      <interceptor-ref name="checkLoginStack" />
+			<result type="stream">
+				<param name="allowCaching">false</param>
+				<param name="contentType">text/html</param>
+				<param name="inputName">inputStream</param>
+			</result>
+		</action>
+		<action name="tree" class="cn.sinobest.framework.web.TreeAction" >
+		      <interceptor-ref name="checkLoginStack" />
+			<result type="stream">
+				<param name="allowCaching">false</param>
+				<param name="contentType">text/html</param>
+				<param name="inputName">inputStream</param>
+			</result>
+		</action>
+		<action name="downFile" class="cn.sinobest.framework.web.DownFileAction" >
+			<interceptor-ref name="myStack">
+				<param name="impExpThreshold.download">true</param>
+			</interceptor-ref>
+			<result type="file">
+				<param name="allowCaching">false</param>
+				<param name="contentType">text/html</param>
+				<param name="inputName">inputFile</param>
+				<param name="bufferSize">1024</param>
+			</result>
+		</action>
+		
+        <action name="report" class="cn.sinobest.framework.web.ReportAction" >
+            <result name="i" >/jsp/framework/report.jsp</result>
+        </action>
+	</package>
+	
+	
+	<!-- 业务strtus配置 -->
+	<!--<include file="/WEB-INF/config/struts-xtgl.xml"  />
+
+-->
+</struts>

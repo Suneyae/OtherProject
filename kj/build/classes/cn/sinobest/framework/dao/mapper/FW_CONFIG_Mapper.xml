@@ -1,0 +1,754 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+    PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN"
+    "http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+<mapper namespace="FW_CONFIG">
+	<!-- 获取当前时间，精确到秒     -->
+	<select id="sysdate" resultType="string">
+		select to_char(sysdate,'YYYYMMDD HH24:MI:SS') DQSJ from dual
+	</select>
+
+	<select id="exeSql" statementType="STATEMENT" parameterType="sqlModel"
+		resultType="hashmap">
+		${sql}
+	</select>
+	
+	<!--  JS动态刷新单记录表格时用到此配置       -->
+	<select id="SELECTSTR_Q" parameterType="hashmap" resultType="hashmap">
+		${SELECTSTR} where ${WHERECLS}
+	</select>
+	
+	<!-- begin 缓存配置       -->
+	<!-- 系统参数     -->
+	<select id="AA01_Q" parameterType="hashmap" resultType="hashmap">
+		select distinct AAA002,AAA001, AAA005, AAA105
+		from AA01
+		<where>
+			<if test="AAA001 != null">
+				AAA001 = #{AAA001}
+			</if>
+		</where>
+	</select>
+
+	<!-- 字典     -->
+	<select id="V_AA10_QA" parameterType="hashmap" resultType="hashmap">
+		select distinct AAA100 from V_AA10
+	</select>
+	
+	<select id="V_AA10_Q" parameterType="hashmap" resultType="hashmap"
+		statementType="PREPARED">
+		select ITEMCODE, AAA101, AAA100, SUBCODE, AAA102, AAA103
+		from V_AA10
+		<where>
+            <if test="AAA100 != null">
+                AAA100 = #{AAA100}
+            </if>
+        </where>
+        order by AAA100,AAA102
+	</select>
+
+	<!-- Excel配置信息     -->
+	<select id="FW_EXPIMP_EXCEL_Q" parameterType="hashmap"
+		resultType="hashmap" statementType="PREPARED">
+		select ID,SQLSTR, RENDERSTR,TEMPLATEFILE, DICTINFO, HASHSQLSTR, DELIMITER from FW_IMPEXP
+		<where>
+			<if test="ID != null">
+				ID = #{ID}
+			</if>
+		</where>
+	</select>
+
+	<!-- 多记录表配置信息 避免冲突加后缀qc    -->
+	<select id="FW_GENLIST_CONF_QC" parameterType="hashmap"
+		resultType="hashmap">
+		select distinct ID, TITLE, TYPE, FIXHEAD, COLHEAD, SELECTSTR,
+		SUBTOTALSTR, DICT, RENDERSTR
+		from FW_GENLIST_CONF
+		<where>
+			<if test="ID != null">
+				ID = #{ID}
+				</if>
+		</where>
+	</select>
+
+	<!-- 单记录表配置信息     -->
+	<select id="FW_GENTBL_CONF_Q" parameterType="hashmap"
+		resultType="hashmap">
+		select distinct ID, RENDERSTR, HIDDENSTR, DESCRIPTION
+		from
+		FW_GENTBL_CONF
+		<where>
+			<if test="ID != null">
+				ID = #{ID}
+			</if>
+		</where>
+	</select>
+
+	<!-- 打印配置信息     -->
+	<select id="FW_PRINT_CONF_Q" parameterType="hashmap" resultType="hashmap">
+	   select distinct ID, BAE001, SQLSTR, LISTSQLSTR, NAME, TEMPLATENAME, 
+       		  DICTINFO, ISMARK, TEMPLATETYPE, GRIDCOLCOUNT, GRIDROWSIZE, FREECOLCOUNT, 
+              CYCLETYPE, REPORTID, REPORTTYPE, CLASS, MEMO, BAE006, 
+              BAE002, BAE003 
+       from FW_PRINT_CONF
+		<where>
+			<if test="ID != null">
+				ID = #{ID}
+				</if>
+		</where>
+	</select>
+
+	<!-- SQL配置信息     -->
+	<select id="FW_QUERYSQL_Q" parameterType="hashmap" resultType="hashmap">
+		select distinct ID, SELECTSTR from FW_QUERYSQL
+		<where>
+			<if test="ID != null">
+				ID = #{ID}
+				</if>
+		</where>
+	</select>
+
+	<!-- 信息提示     -->
+	<select id="FW_SYSMESSAGE_Q" parameterType="hashmap" resultType="hashmap">
+		select SUBSYSTYPE, BUSSUBCODE, TYPE, MSGLEVEL, CODE,DESCRIPTION from FW_SYSMESSAGE
+		<where>
+			<if test="CODE != null">
+				CODE = #{CODE}
+				</if>
+		</where>
+	</select>
+
+	<!-- 流程定义     -->
+	<select id="WF_ACTION_DEF_Q" parameterType="hashmap" resultType="wfActionDef">
+		select *
+		from WF_ACTION_DEF
+		<where>
+		    AAE100 = '1'
+			<if test="PROCESS_DEF_ID != null">
+				and PROCESS_DEF_ID = #{PROCESS_DEF_ID}
+			</if>
+			<if test="ACTION_DEF_ID != null">
+				and ACTION_DEF_ID = #{ACTION_DEF_ID}
+			</if>
+		</where>
+	</select>
+	
+	<!-- 查询流程环节与业务处理关联信息     -->
+	<select id="WF_ACTION_DEF2TASK_Q"  resultType="wfActionDef2Task">
+		select * from WF_ACTION_DEF2TASK 
+		<where>
+			<if test="PROCESS_DEF_ID != null and ACTION_DEF_ID != null">
+				and PROCESS_DEF_ID = #{PROCESS_DEF_ID}
+				and ACTION_DEF_ID = #{ACTION_DEF_ID}
+			</if>
+			<if test="NEXT_ACTION_DEF_ID != null">
+				and NEXT_ACTION_DEF_ID = #{NEXT_ACTION_DEF_ID}
+			</if>
+		</where>
+	</select>
+	
+	
+	<!-- 权限配置     -->
+	<select id="FW_RIGHT_Q" parameterType="hashmap" resultType="hashmap">
+		select distinct RIGHTID, SUBSYSTYPE, RIGHTNAME, RIGHTTYPE, RIGHTLEVEL, SORTNO,
+		   ACTION_DEF_ID, URL,HELPURL,BUSSFUNCID
+		from FW_RIGHT where AAE100 = '1'
+		union all
+		select distinct RIGHTID,SUBSYSTYPE,'' SUBSYSTYPE,'99' RIGHTTYPE,
+		   null RIGHTLEVEL,null SORTNO,null ACTION_DEF_ID,URL,'' HELPURL,'' BUSSFUNCID
+		from FW_RIGHT2RESOURCE where AAE100 = '1'
+	</select>
+
+	<!-- end 缓存配置       -->
+
+	<!-- begin 工作流       -->
+	<select id="SEQ_WF_WORK_ITEM" resultType="long">
+		select
+		SEQ_WF_WORK_ITEM.nextval from DUAL
+	</select>
+	<select id="SEQ_WF_PROCESS_INSTANCE" resultType="long">
+		select
+		SEQ_WF_PROCESS_INSTANCE.nextval from DUAL
+	</select>
+    
+    <!-- 业务流水  -->
+    <select id="SEQ_WF_YWLS" resultType="long" parameterType="string">
+        select ${SEQ_YWLS}.nextval from DUAL
+    </select>
+    
+	<!-- 查询流程定义     -->
+	<select id="WF_ACTION_DEF_Q2" parameterType="wfActionDef"
+		resultType="wfActionDef">
+		select * from WF_ACTION_DEF
+		where PROCESS_DEF_ID = #{PROCESS_DEF_ID}
+		<if test="ACTION_DEF_ID != null">
+			and ACTION_DEF_ID = #{ACTION_DEF_ID}
+		</if>
+		<if test="START_OR_END != null">
+			and START_OR_END = #{START_OR_END}
+		</if>
+		order by SORTNO ASC
+	</select>
+
+	<!-- 查询环节实例     -->
+	<select id="WF_WORK_ITEM_Q" parameterType="long" resultType="wfWorkItem">
+		select * from WF_WORK_ITEM	where WORK_ITEM_ID = #{WORK_ITEM_ID}
+	</select>
+	
+	
+	<!-- 根据流程实例号查询所有环节实例     -->
+	<select id="WF_WORK_ITEM_Q2" parameterType="string" resultType="wfWorkItem">
+		select * from WF_WORK_ITEM where BAE007  = #{BAE007} order by WORK_ITEM_ID asc
+	</select>
+	
+	
+	<!-- 环节状态统计     -->
+	<select id="WF_WORK_ITEM_CNT" parameterType="wfWorkItem"
+		resultType="integer">
+		SELECT count(1) n FROM WORK_ITEM_ID
+		WHERE BAE007 = #{BAE007}
+		AND WORK_ITEM_ID != #{WORK_ITEM_ID} AND STATE =
+		#{STATE}
+	</select>
+	
+	<!-- 查找接收人ID     -->
+	<select id="WF_WORK_ITEM_Q_OPR" parameterType="wfWorkItem"
+		resultType="string">
+		select OPERID
+		from WF_WORK_ITEM A
+		where ACTION_DEF_ID =
+		#{ACTION_DEF_ID}
+		and exists (select 1
+		from WF_WORK_ITEM B
+		where
+		A.WORK_ITEM_ID = B.PRE_WI_ID
+		and B.WORK_ITEM_ID = #{WORK_ITEM_ID})
+	</select>
+	
+	<!-- 查找接收人     -->
+	<select id="WF_WORK_ITEM_Q_OPRNAME" parameterType="wfWorkItem"
+		resultType="list">
+		select OPERID, OPERNAME
+		from S_U_USER A
+		where exists (select
+		1
+		from WF_WORK_ITEM B
+		where A.OPERID = B.OPERID
+		and B.WORK_ITEM_ID =
+		(select max(WORK_ITEM_ID)
+		from WF_WORK_ITEM C
+		where C.BAE007 = #{BAE007}
+		and C.ACTION_DEF_ID = #{ACTION_DEF_ID}))
+	</select>
+	
+	<!-- 查找互斥操作员     -->
+	<select id="WF_WORK_ITEM_Q_XOPR" parameterType="hashmap"
+		resultType="string">
+		select distinct OPERID
+		from WF_WORK_ITEM
+		where BAE007 = #{BAE007}
+		and STATE != #{STATE}
+		and FILTER_OPR = OPERID
+		and ACTION_DEF_ID
+		in (${WORK_ITEM_ID})
+	</select>
+    <!-- 查找提交操作员     -->
+    <select id="WF_WORK_ITEM_Q_PRE_OPERID" parameterType="string"
+        resultType="hashmap">
+      select OPERID, OPERNAME,BAE001,OPERUNITID,OPERTYPE2
+         from FW_OPERATOR A
+        where OPERID =
+        (select OPERID
+           from WF_WORK_ITEM 
+          where BAE007 = #{W_BAE007} and WORK_ITEM_ID = (select max(work_item_id)
+                                 from WF_WORK_ITEM B
+                                where BAE007 = #{W_BAE007} and ACTION_DEF_ID = #{C_ACTION_DEF_ID} ))
+      <if test="RIGHTFLAG == 'true'" >
+           and exists (select 1
+                 from FW_OPERATOR2RIGHT B
+                where A.OPERID = B.OPERID
+                  and exists (select 1
+                         from FW_RIGHT C
+                        where B.RIGHTID = C.RIGHTID
+                          and B.AUTHTYPE = '1'
+                          and C.ACTION_DEF_ID = #{R_ACTION_DEF_ID}))
+      </if>
+      
+    </select>
+	<!-- 生成环节实例     -->
+	<insert id="WF_WORK_ITEM_I" parameterType="wfWorkItem">
+		insert into
+		WF_WORK_ITEM
+		(WORK_ITEM_ID, BAE007, ACTION_DEF_ID, ACTION_DEF_NAME,
+		STATE, PRE_WI_ID, WORK_TYPE, IS_RETURN,
+		OPERID, X_OPRATOR_IDS,
+		START_TIME, COMPLETE_TIME,
+		FILTER_OPR, AAE100, MEMO, BAE006,
+		BAE002,
+		BAE003,
+        YWBAE007,OPERUNITID)
+		values
+		(#{WORK_ITEM_ID,jdbcType=NUMERIC}, #{BAE007,jdbcType=VARCHAR},
+		#{ACTION_DEF_ID,jdbcType=VARCHAR},#{ACTION_DEF_NAME,jdbcType=VARCHAR},
+		#{STATE,jdbcType=VARCHAR},#{PRE_WI_ID,jdbcType=NUMERIC},
+		#{WORK_TYPE,jdbcType=VARCHAR},#{IS_RETURN,jdbcType=VARCHAR},
+		#{OPERID,jdbcType=VARCHAR},#{X_OPRATOR_IDS,jdbcType=VARCHAR},#{START_TIME,jdbcType=NUMERIC},
+		#{COMPLETE_TIME,jdbcType=NUMERIC},
+		#{FILTER_OPR,jdbcType=VARCHAR},#{AAE100,jdbcType=VARCHAR},#{MEMO,jdbcType=VARCHAR},#{BAE006,jdbcType=VARCHAR},
+		#{BAE002,jdbcType=VARCHAR},
+		#{BAE003,jdbcType=NUMERIC},
+        #{YWBAE007,jdbcType=VARCHAR},#{OPERUNITID,jdbcType=NUMERIC})
+	</insert>
+
+	<!-- 更新环节实例信息     -->
+	<update id="WF_WORK_ITEM_U" parameterType="wfWorkItem">
+		update WF_WORK_ITEM
+		<set>
+		<if test="STATE != null"> STATE = #{STATE},</if>
+		<if test="PRE_WI_ID != null"> PRE_WI_ID = #{PRE_WI_ID},</if>
+		<if test="IS_RETURN != null"> IS_RETURN = #{IS_RETURN},</if>
+		<if test="OPERID != null"> OPERID = #{OPERID},</if>
+		<if test="X_OPRATOR_IDS != null"> X_OPRATOR_IDS = #{X_OPRATOR_IDS},</if>
+		<if test="START_TIME != null"> START_TIME = #{START_TIME},</if>
+		<if test="COMPLETE_TIME != null"> COMPLETE_TIME = #{COMPLETE_TIME},</if>
+		<if test="FILTER_OPR != null"> FILTER_OPR = #{FILTER_OPR},</if>
+		<if test="AAE100 != null"> AAE100 = #{AAE100}, </if>
+		<if test="MEMO != null"> MEMO = #{MEMO} </if>
+		</set>
+		where WORK_ITEM_ID = #{WORK_ITEM_ID}
+		<if test="STATE != null">
+			and STATE != #{STATE}
+		</if>
+	</update>
+    
+    <!-- 在回退时，取消过滤     -->
+    <update id="WF_WORK_ITEM_U4" parameterType="wfWorkItem">
+        update WF_WORK_ITEM
+        set FILTER_OPR = ''
+        where BAE007 = #{BAE007}
+        and ACTION_DEF_ID = #{ACTION_DEF_ID}
+        and STATE != #{STATE}
+    </update>
+    
+
+	<!-- 查找流程实例     -->
+	<select id="WF_PROCESS_INSTANCE_Q" parameterType="string"
+		resultType="wfProcessInstance">
+		select * from WF_PROCESS_INSTANCE
+		where BAE007 = #{BAE007}
+	</select>
+	
+	<!-- 生成流程实例     -->
+	<insert id="WF_PROCESS_INSTANCE_I" parameterType="wfProcessInstance">
+		insert into
+		WF_PROCESS_INSTANCE
+		(BAE007,PROCESS_DEF_ID,PROCESS_DEF_NAME,ARCHIVEID,
+		STATUS, PROCESS_KEY_INFO,AAB001,AAC001,
+		REJECT_REASON,
+		PARENTINSID,RELATEINSID,PREVIOUS_WI_ID,
+		CURRENT_WI_ID,COMPLETE_TIME,BAE006, BAE002, BAE003,
+        YWBAE007
+		)values(
+		#{BAE007,jdbcType=VARCHAR},#{PROCESS_DEF_ID,jdbcType=VARCHAR},#{PROCESS_DEF_NAME,jdbcType=VARCHAR},#{ARCHIVEID,jdbcType=VARCHAR},
+		#{STATUS,jdbcType=VARCHAR},#{PROCESS_KEY_INFO,jdbcType=VARCHAR},#{AAB001,jdbcType=NUMERIC},#{AAC001,jdbcType=NUMERIC},
+		#{REJECT_REASON,jdbcType=VARCHAR},#{PARENTINSID,jdbcType=VARCHAR},#{RELATEINSID,jdbcType=VARCHAR},#{PREVIOUS_WI_ID,jdbcType=NUMERIC},
+		#{CURRENT_WI_ID,jdbcType=NUMERIC},#{COMPLETE_TIME,jdbcType=NUMERIC},#{BAE006,jdbcType=VARCHAR},#{BAE002,jdbcType=VARCHAR},#{BAE003,jdbcType=NUMERIC},
+        #{YWBAE007,jdbcType=VARCHAR})
+	</insert>
+	
+	<!-- 更新流程实例信息     -->
+	<update id="WF_PROCESS_INSTANCE_U" parameterType="wfProcessInstance">
+		update WF_PROCESS_INSTANCE
+		<set>
+			<if test="STATUS           != null"> STATUS = #{STATUS},           </if>
+			<if test="PROCESS_KEY_INFO != null"> PROCESS_KEY_INFO = #{PROCESS_KEY_INFO}, </if>
+			<if test="REJECT_REASON    != null"> REJECT_REASON = #{REJECT_REASON},    </if>
+			<if test="PREVIOUS_WI_ID   != null"> PREVIOUS_WI_ID = #{PREVIOUS_WI_ID},   </if>
+			<if test="CURRENT_WI_ID    != null"> CURRENT_WI_ID = #{CURRENT_WI_ID},    </if>
+			<if test="COMPLETE_TIME    != null"> COMPLETE_TIME = #{COMPLETE_TIME},    </if>
+		</set>
+		where BAE007 = #{BAE007}
+	</update>
+	
+	<!-- 更新流程实例状态     -->
+    <update id="WF_PROCESS_INSTANCE_U2" parameterType="wfProcessInstance">
+        update WF_PROCESS_INSTANCE
+        set STATUS = #{STATUS}
+        where BAE007 = #{BAE007}
+        and STATUS = '2'
+    </update>
+    
+    <!-- 更新环节实例状态    -->
+    <update id="WF_WORK_ITEM_U2" parameterType="wfWorkItem">
+        update WF_WORK_ITEM
+        <set>
+            <if test="STATE != '2'"> STATE = #{STATE},</if>
+            <if test="STATE == '2'"> STATE = MEMO,</if>
+            MEMO = STATE
+        </set>
+        where BAE007 = #{BAE007}
+         <if test="WORK_ITEM_ID   != null and WORK_ITEM_ID > 0">
+            and WORK_ITEM_ID = #{WORK_ITEM_ID}
+         </if>
+         and STATE not in ('3','5')
+    </update>
+ 
+	<!-- 查询     -->
+	<select id="FW_RIGHT_Q2" parameterType="hashmap" resultType="hashmap">
+		select RIGHTID,URL,BUSSFUNCID
+		from FW_RIGHT A
+		where RIGHTTYPE = #{RIGHTTYPE}
+		and exists
+		(select 1
+		from WF_WORK_ITEM B
+		where A.ACTION_DEF_ID = B.ACTION_DEF_ID
+		and B.WORK_ITEM_ID = #{WORK_ITEM_ID})
+	</select>
+
+	<select id="FW_RIGHT_Q3" parameterType="hashmap" resultType="hashmap">
+		select RIGHTID,URL,BUSSFUNCID
+		from FW_RIGHT
+		where RIGHTTYPE = #{RIGHTTYPE}
+		and ACTION_DEF_ID
+		= #{ACTION_DEF_ID}
+	</select>
+	
+	<select id="FW_OPERATOR_Q" parameterType="hashmap" resultType="hashmap">
+		select OPERID, OPERNAME
+      	from FW_OPERATOR A
+     	where 
+        exists (select 1
+            	from FW_OPERATOR2RIGHT B
+           		where A.OPERID = B.OPERID
+             	and exists (select 1
+                  			from FW_RIGHT C
+                  			where B.RIGHTID = C.RIGHTID
+                  			  and B.AUTHTYPE = '1'
+                   			  and C.ACTION_DEF_ID = #{ACTION_DEF_ID}
+                   			)
+                )
+       and  A.OPERID not in (${XOPERID})
+       <if test="ORGWHERE != null">
+      	 ${ORGWHERE}
+       </if>
+        <if test="OPERUNITID != null and OPERUNITID != ''">
+           and  OPERUNITID = #{OPERUNITID}
+       </if>
+	</select>
+	
+    
+    <select id="FW_OPERATOR_Q2" parameterType="string" resultType="hashmap">
+        select BAE001,OPERUNITID,OPERTYPE2
+        from FW_OPERATOR 
+        where OPERID = #{OPERID}
+    </select>
+    
+	<!-- 查找最新版本流程定义ID     -->
+	<select id="WF_ACTION_DEF_Q3" parameterType="string" resultType="string" >
+		select max(PROCESS_DEF_ID) PROCESS_DEF_ID
+        from WF_ACTION_DEF A
+        where PROCESS_DEF_NAME = #{PROCESS_DEF_NAME}
+	</select>
+    
+    <!-- 根据流程定义ID获取RIGHTID   -->
+    <select id="FW_RIGHT_Q5" parameterType="string" resultType="string" >
+       select RIGHTID
+        from FW_RIGHT A
+        where exists (select 1
+          from WF_ACTION_DEF B
+         where A.ACTION_DEF_ID = B.PROCESS_DEF_NAME
+           and PROCESS_DEF_ID = #{PROCESS_DEF_ID})
+        and ROWNUM = 1
+    </select>
+    
+    <!-- 根据流程号获取RIGHTID   -->
+    <select id="FW_RIGHT_Q6" parameterType="string" resultType="string" >
+          select RIGHTID
+            from FW_RIGHT A
+            where exists (select 1
+          from WF_PROCESS_INSTANCE B
+          where A.ACTION_DEF_ID = B.PROCESS_DEF_NAME
+           and B.BAE007 = #{BAE007})
+        and ROWNUM = 1
+    </select>
+    
+	<!-- 获取流程定义名称    -->
+	<select id="FW_RIGHT_Q4" parameterType="string" resultType="string" >
+		 select max(A.PROCESS_DEF_ID) PROCESS_DEF_ID
+		  from WF_ACTION_DEF A, FW_RIGHT B
+		 where A.PROCESS_DEF_NAME = B.ACTION_DEF_ID
+		   and B.RIGHTID = #{RIGHTID}
+		   and B.ACTION_DEF_ID is not null
+	</select>
+	
+	<!-- 查找指定环节信息     -->
+    <select id="WF_WORK_ITEM_Q6" parameterType="hashmap"
+        resultType="wfWorkItem">
+        select *
+        from WF_WORK_ITEM B
+        where B.WORK_ITEM_ID =
+        (select max(WORK_ITEM_ID)
+           from WF_WORK_ITEM A
+          where A.BAE007 = #{W_BAE007}
+           and A.ACTION_DEF_ID = #{W_ACTION_DEF_ID}
+        )
+    </select>
+    
+	<!-- end 工作流       -->
+
+
+	<!-- 多记录配置     -->
+	<select id="FW_GENLIST_CONF_Q" parameterType="hashmap"
+		resultType="hashmap">
+		select * from FW_GENLIST_CONF where id=#{ID}
+	</select>
+
+	<!-- excel上传     -->
+	<select id="SEQ_IMPEXP_DRPH" resultType="long">
+		select SEQ_DRPH.nextval DRPH from DUAL
+	</select>
+	<!-- 打印报表的配置信息     -->
+	<select id="FW_REPORT_USERCFG_Q" resultType="hashmap">
+		select USERID,REPORTID,VTOP,VBOTTOM,VLEFT,VRIGHT from FW_REPORT_USERCFG where USERID=#{USERID} and REPORTID=#{REPORTID}
+	</select>
+
+	<insert id="FW_REPORT_USERCFG_I" parameterType="hashmap">
+		insert into FW_REPORT_USERCFG
+		(USERID, REPORTID, VTOP, VBOTTOM,VLEFT, VRIGHT)
+		values
+		(#{USERID}, #{REPORTID},#{VTOP},#{VBOTTOM},#{VLEFT},#{VRIGHT})
+	</insert>
+	
+	<!--获取指定长事务配置     -->
+	<select id="FW_LONGTRANS_CONF_Q" parameterType="string" resultType="cn.sinobest.framework.service.longtran.LongTran" >
+		select TRANSID, SUBSYS_TYPE, CTYPE, PROCESS, TRIGGER_TYPE, CRON_EXPR, MEMO
+        from FW_LONGTRANS_CONF
+		where TRANSID = #{TRANSID}
+		AND TRIGGER_TYPE = #{TRIGGER_TYPE}
+	</select>
+	
+	<!-- 获取指定触发类型的长事务配置  -->
+    <select id="FW_LONGTRANS_CONF_Q2" resultType="cn.sinobest.framework.service.longtran.LongTran" parameterType="string">
+        select * from FW_LONGTRANS_CONF 
+        where TRIGGER_TYPE=#{TRIGGER_TYPE}
+    </select>
+   
+     <!--  获取长事务开始时间，完成时间                             -->
+    <select id="FW_LONGTRANS_LOG_Q" resultType="hashmap" parameterType="hashmap">
+       select STARTTIME,ENDTIME from FW_LONGTRANS_LOG where TRANSID = #{TRANSID}   and KEY = #{KEY}
+    </select>
+    <!-- 获取长事务是否已存在 -->
+    <select id="FW_LONGTRANS_LOG_CNT" resultType="long" parameterType="hashmap">
+       select count(1) from FW_LONGTRANS_LOG where TRANSID = #{TRANSID}   and KEY = #{KEY} and ENDTIME is null
+    </select>
+    
+	<!-- 网页打印报表的配置信息     -->
+    <select id="FW_REPORT_CONF_Q" resultType="hashmap">
+        select * from FW_REPORT_CONF where ID=#{ID}
+    </select>
+    
+	<!-- 异常日志插入       -->
+	<insert id="FW_LOG4EXCEPTION_I" parameterType="hashmap" >
+	   insert into FW_LOG4EXCEPTION
+        (EVENTTIME, EXCEPTIONSTACK, URL, PARAMS, OPERID)
+        values
+       (#{EVENTTIME}, #{EXCEPTIONSTACK}, #{URL}, #{PARAMS}, #{OPERID})
+	</insert>
+    <!-- 业务通办表的配置信息     -->
+    <select id="FW_BUSS2SYSORG_Q" resultType="hashmap">
+        select * from FW_BUSS2SYSORG
+    </select>
+     
+	<!--        润乾报表保存打印设置 查询配置是否已经存在          -->
+	<select id="FW_PRINT_CLIENTCONFIG_CNT" parameterType="hashmap" resultType="hashmap">
+		select count(1) COUNT from FW_PRINT_CLIENTCONFIG where KEYID = #{KEYID}
+	</select>
+
+	<!--        润乾报表保存打印设置 读取配置          -->
+	<select id="FW_PRINT_CLIENTCONFIG_Q" parameterType="hashmap" resultType="hashmap">
+		select KEYID,WIDTH,HEIGHT,X,Y,W,H,ORIENTATION,PRINTERNAME,A,SCALE from FW_PRINT_CLIENTCONFIG where KEYID=#{KEYID}
+	</select>
+	
+	<!--        润乾报表保存打印设置 修改配置          -->
+	<update id="FW_PRINT_CLIENTCONFIG_U" parameterType="hashmap">
+		update FW_PRINT_CLIENTCONFIG set 
+			WIDTH=#{WIDTH},
+			HEIGHT=#{HEIGHT},
+			X=#{X},
+			Y=#{Y},
+			W=#{W},
+			H=#{H},					
+			ORIENTATION=#{ORIENTATION},
+			PRINTERNAME=#{PRINTERNAME},
+			A=#{A},
+			SCALE=#{SCALE}
+			WHERE KEYID=#{KEYID}
+	</update>
+	
+	<!--        润乾报表保存打印设置 插入配置          -->
+	<insert id="FW_PRINT_CLIENTCONFIG_I" parameterType="hashmap">
+			insert into FW_PRINT_CLIENTCONFIG(KEYID,WIDTH,HEIGHT,X,Y,W,H,ORIENTATION,A,SCALE) values
+			(#{KEYID},#{WIDTH},#{HEIGHT},#{X},#{Y},#{W},#{H},#{ORIENTATION},#{A},#{SCALE})
+
+	</insert>
+	<!--        报表自动导出excel到中间层		选择出需要导出的报表          -->
+	<select id="FW_REPORT_EXP2EXCEL_Q" parameterType="hashmap" resultType="hashmap">
+		select EXPID, REPORTID, PTYPE, PARAMS, FILENAME, 
+			(select TEMPLATEFILE from FW_REPORT_CONF where FW_REPORT_CONF.ID=REPORTID) TEMPLATEFILE
+		  from FW_REPORT_EXP2EXCEL
+		    where (STATE = '0' or STATE = '-1')
+	</select>
+	
+	<!--        报表导出的excel自动上传至FTP服务器	选择出需要导出的报表          -->
+	<select id="FW_REPORT_EXP2EXCEL_Q2" parameterType="hashmap" resultType="hashmap">
+		select EXPID, FILENAME
+		  from FW_REPORT_EXP2EXCEL
+		    where STATE = '1' and (FTPSTATE='0' or FTPSTATE = '-1') 
+	</select>
+	
+	<!--        报表自动导出excel到中间层		更新导出配置表         -->
+	<update id="FW_REPORT_EXP2EXCEL_U" parameterType="hashmap">
+		update FW_REPORT_EXP2EXCEL set
+			<trim suffixOverrides=",">
+				<if test="FILENAME != null">FILENAME=#{FILENAME},</if>
+				<if test="STATE != null">STATE=#{STATE},</if>
+				<if test="MSG != null">MSG=#{MSG},</if>
+				<if test="ETIME != null">ETIME=#{ETIME},</if>
+			</trim>
+			where EXPID=#{EXPID}
+	</update>
+	
+		<!--       报表导出的excel自动上传至FTP服务器	 更新导出配置表         -->
+	<update id="FW_REPORT_EXP2EXCEL_U2" parameterType="hashmap">
+		update FW_REPORT_EXP2EXCEL set
+			FTPMSG=#{FTPMSG},FTPSTATE=#{FTPSTATE},FTPTIME=#{FTPTIME}
+			where EXPID=#{EXPID}
+	</update>
+	
+		<!-- FW_YXZLINFO_CONF 选择字段插入 -->
+	<insert id="FW_YXZLINFO_CONF_IS" parameterType="hashmap">   
+	   insert into FW_YXZLINFO_CONF (
+	      <trim suffixOverrides=",">
+	         <if test="MEMO != null">MEMO,</if>
+	         <if test="FILENAME != null">FILENAME,</if>
+	         <if test="FILETYPE != null">FILETYPE,</if>
+	         <if test="FILEPATH != null">FILEPATH,</if>
+	         <if test="AAE011 != null">AAE011,</if>
+	         <if test="AAE036 != null">AAE036,</if>
+	         <if test="BAE007 != null">BAE007,</if>
+	         <if test="FTOSERVER != null">FTOSERVER,</if>
+	      </trim>
+	   ) values (
+	      <trim suffixOverrides=",">
+	         <if test="MEMO != null">#{MEMO},</if>
+	         <if test="FILENAME != null">#{FILENAME},</if>
+	         <if test="FILETYPE != null">#{FILETYPE},</if>
+	         <if test="FILEPATH != null">#{FILEPATH},</if>
+	         <if test="AAE011 != null">#{AAE011},</if>
+	         <if test="AAE036 != null">#{AAE036},</if>
+	         <if test="BAE007 != null">#{BAE007},</if>
+	         <if test="FTOSERVER != null">#{FTOSERVER},</if>
+	      </trim>
+	   )
+	</insert>
+		<!-- FW_YXZLINFO_CONF 选择修改 -->
+	<update id="FW_YXZLINFO_CONF_US" parameterType="hashmap">   
+	   update FW_YXZLINFO_CONF
+	   set
+	   <trim suffixOverrides=",">
+	      <if test="MEMO != null">MEMO=#{MEMO},</if>
+	      <if test="FILENAME != null">FILENAME=#{FILENAME},</if>
+	      <if test="FILETYPE != null">FILETYPE=#{FILETYPE},</if>
+	      <if test="FILEPATH != null">FILEPATH=#{FILEPATH},</if>
+	      <if test="AAE011 != null">AAE011=#{AAE011},</if>
+	      <if test="AAE036 != null">AAE036=#{AAE036},</if>
+	      <if test="BAE007 != null">BAE007=#{BAE007},</if>
+	      <if test="FTOSERVER != null">FTOSERVER=#{FTOSERVER},</if>
+	   </trim>
+	   where BAE007=#{BAE007} and FILENAME=#{FILENAME}
+	</update>
+		<!-- FW_YXZLINFO_CONF 记录数 -->
+	<select id="FW_YXZLINFO_CONF_CNT" parameterType="hashmap" resultType="long">   
+	   select count(1)
+	   from FW_YXZLINFO_CONF
+		<where>
+			<if test="MEMO != null">   
+			   and MEMO=#{MEMO}
+			</if>
+			<if test="FILENAME != null">   
+			   and FILENAME=#{FILENAME}
+			</if>
+			<if test="FILETYPE != null">   
+			   and FILETYPE=#{FILETYPE}
+			</if>
+			<if test="FILEPATH != null">   
+			   and FILEPATH=#{FILEPATH}
+			</if>
+			<if test="AAE011 != null">   
+			   and AAE011=#{AAE011}
+			</if>
+			<if test="AAE036 != null">   
+			   and AAE036=#{AAE036}
+			</if>
+			<if test="BAE007 != null">   
+			   and BAE007=#{BAE007}
+			</if>
+			<if test="FTOSERVER != null">   
+			   and FTOSERVER=#{FTOSERVER}
+			</if>
+		</where>
+	</select>
+	    <!-- 在回退时，取消过滤     -->
+    <update id="WF_WORK_ITEM_U5" parameterType="wfWorkItem">
+        update WF_WORK_ITEM
+        set FILTER_OPR = ''
+        where BAE007 = #{BAE007}
+        and ACTION_DEF_ID = #{ACTION_DEF_ID}
+        and STATE = #{STATE}
+    </update>
+    
+    <!-- 插入选择的某一行的checkbox VALUE    -->
+	<insert id="FW_MUTL_I" parameterType="hashmap">
+		insert into ${TABLE_NAME} (ID,VALUE)
+		values(#{ID},#{VALUE})
+	</insert>
+	
+	<!-- 插入选择的某一页所有的checkbox VALUE    -->
+	<insert id="FW_MUTL_I2" parameterType="hashmap">
+		insert into ${TABLE_NAME} (ID,VALUE)
+		select #{ID},#{VALUE} 
+		from dual
+		where not exists 
+		(select 1 from FW_MUTL_SELECT where ID=#{ID} and VALUE=#{VALUE})
+	</insert>
+	<!--  插入选择所有页的checkbox VALUE   -->
+	<insert id="FW_MUTL_I3" parameterType="hashmap">
+		insert into ${TABLE_NAME}(ID, VALUE)
+		  select #{ID}, t1.${COLUMN_NAME}
+		    from (${SELECTSTR} where ${QUERYSQL_WHERECLS}) t1
+		   where not exists (select value
+		            from ${TABLE_NAME}
+		           where ${TABLE_NAME}.ID = #{ID}
+		             and ${TABLE_NAME}.VALUE = t1.${COLUMN_NAME})
+	</insert>
+	<!-- 删除跨页全选的某一行     -->
+	<delete id="FW_MUTL_D" parameterType="hashmap">
+		delete from ${TABLE_NAME} where ID=#{ID} and VALUE=#{VALUE}
+	</delete>
+	
+	<!-- 删除跨页全选的所有行     -->
+	<delete id="FW_MUTL_D2" parameterType="hashmap">
+		delete from ${TABLE_NAME} where ID=#{ID}
+	</delete>
+	
+	<select id="FW_MUTL_SELECT_SEQ" resultType="string">
+		select SEQ_FW_MUTL_SELECT.NEXTVAL from dual
+	</select>
+	
+	<delete id="FW_YXZLINFO_CONF_D" parameterType="hashmap">   
+	   delete from FW_YXZLINFO_CONF
+		<where>   
+		    BAE007=#{BAE007} and FILENAME=#{FILENAME}
+		</where>
+	</delete>
+</mapper>

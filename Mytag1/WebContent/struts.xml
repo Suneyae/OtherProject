@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE struts PUBLIC
+	"-//Apache Software Foundation//DTD Struts Configuration 2.3//EN"
+	"http://struts.apache.org/dtds/struts-2.3.dtd">
+<struts>
+	<!-- 打开扩展，实际上就是action的结尾可以添加.action,或者加上 .do， -->
+	<constant name="struts.action.extension" value="action,do,"></constant>
+	<!-- 打开动态方法调用的开关 -->
+	<constant name="struts.enable.DynamicMethodInvocation" value="true"></constant>
+	
+	<package name="suibian" extends="struts-default">
+		<action name="denglu" class="com.wyl.toLoginAction" method="denglu">
+			<result name="shibai">shibai.jsp</result>
+		</action>
+		<action name="tosubmit" class="com.wyl.toLoginAction" method="tijiao">
+			<result name="success">chenggong.jsp</result>
+			<result name="error">error.jsp</result>
+		</action>
+		<action name="testAjax" class="com.wyl.toLoginAction" method="tijiao">
+			<result name="success">chenggong.jsp</result>
+			<result name="error">error.jsp</result>
+		</action>
+		<action name="tosubmit2" class="com.wyl.toLoginAction" method="vali2">
+			<result name="success">chenggong.jsp</result>
+		</action>
+		<!-- 测试动态方法调用 ,如果不填写method属性，那么就默认调用execute()方法， 且如果该类中没有execute方法，那么就会直接执行父类的execute方法， -->
+		<action name="dynamicMethod" class="com.wyl.dynamic.DynamicMethod">
+			<result name="success">/save.jsp</result>
+			<result name="shibai">/fail.jsp</result>
+		</action>
+		
+	</package>
+</struts>

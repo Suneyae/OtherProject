@@ -1,0 +1,28 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<!-- Generated 2016-9-5 17:07:57 by Hibernate Tools 3.5.0.Final -->
+<hibernate-mapping>
+	<!-- dynamic-update="true"的作用：update 的时候不更新所有字段，而是只更新obj.setXXX(yyy)里的XXX字段 -->
+	<class name="com.atguigu.hibernate.helloworld.Cat" table="CATT"
+		dynamic-update="true">
+		<id name="id" type="java.lang.Integer">
+			<column name="ID" />
+			<!-- 该主键是一个序列，而且序列名为wyl_seq.注意：mysql数据库不支持序列，这个设置也就不起作用了，不过oracle等支持 -->
+			<generator class="sequence">
+				<param name="sequence">wyl_seq</param>
+			</generator>
+		</id>
+		<property name="name" type="java.lang.String" index="wyl_index"
+			length="240" unique="true">
+			<column name="NAME" />
+		</property>
+		<!-- update="false" ,让该字段不能被修改,即在比如session.save(obj)后， obj.setXXX('yyy')这个setter方法就失效了 
+			index="wyl-index"，指定给表的sex字段加上索引 -->
+		<property name="sex" type="java.lang.String" update="false"
+			index="wyl_index" insert="true">
+			<column name="SEX" />
+		</property>
+		
+	</class>
+</hibernate-mapping>

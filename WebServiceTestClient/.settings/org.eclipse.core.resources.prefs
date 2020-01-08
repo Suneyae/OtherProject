@@ -1,0 +1,9 @@
+eclipse.preferences.version=1
+encoding//src/com/sinosoft/webservice/HelloService.java=UTF-8
+encoding//src/com/sinosoft/webservice/HelloServiceService.java=UTF-8
+encoding//src/com/sinosoft/webservice/HelloServiceServiceLocator.java=UTF-8
+encoding//src/com/sinosoft/webservice/HelloServiceSoapBindingStub.java=UTF-8
+encoding//src/edu/sjtu/webservice/CalculateService.java=UTF-8
+encoding//src/edu/sjtu/webservice/CalculateServiceService.java=UTF-8
+encoding//src/edu/sjtu/webservice/CalculateServiceServiceLocator.java=UTF-8
+encoding//src/edu/sjtu/webservice/CalculateServiceSoapBindingStub.java=UTF-8

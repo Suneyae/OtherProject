@@ -1,0 +1,1 @@
+<a href="http://www.blogjava.net/natlive">${parameters.message?html}</a>  

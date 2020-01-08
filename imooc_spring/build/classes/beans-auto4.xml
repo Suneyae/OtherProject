@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+
+	xsi:schemaLocation="
+	http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-4.0.xsd
+	http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.0.xsd">
+	<!-- 开启注解扫描 -->
+	<context:component-scan base-package="com.aop.xmltype"></context:component-scan>
+
+	<!-- 切点 ，即自己的业务逻辑类Service或者DAO等 -->
+	<bean id="calculatorImplxml" class="com.aop.xmltype.CalculatorImplxml"></bean>
+	<!-- 切面，即记日记的类 -->
+	<bean id="diary" class="com.aop.xmltype.Diary"></bean>
+
+	<aop:config>
+		<!-- 步骤1  指定切面，即日记类 -->
+		<aop:aspect id="mydiary" ref="diary">
+			<!-- 步骤2  指定切点，即具体的Service或者DAO等，也就是要被记日记的类的
+				具体方法，id属性是给aop:before等标签来引用的 -->
+			<aop:pointcut expression="execution(* com.aop.xmltype.CalculatorImplxml.*(..) )"
+				id="mypointcut" />
+			<!-- 步骤3  指定前置通知的具体日记方法myBeain()， porintcut-ref：指定到底在哪个类的具体方法(这个方法 就是aop:pointcut属性所指定的方法)之前调用日记方法myBean() -->
+			<aop:before method="myBegin" pointcut-ref="mypointcut" />
+			<aop:after method="myEnd" pointcut-ref="mypointcut" />
+		</aop:aspect>
+	</aop:config>
+
+</beans>

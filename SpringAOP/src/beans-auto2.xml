@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+
+	xsi:schemaLocation="
+	http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-4.0.xsd
+	http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.0.xsd">
+	<context:component-scan base-package="com.wyl"></context:component-scan>
+	<bean id="studentService" class="com.wyl.service.impl.StudentServiceImpl" ></bean>
+
+	
+	<!-- 配置C3P0数据源 -->
+	<bean id="dataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource">
+		<property name="jdbcUrl" value="${jdbc.url}"></property>
+		<property name="driverClass" value="${jdbc.driverName}"></property>
+		<property name="user" value="${jdbc.username}"></property>
+		<property name="password" value="${jdbc.pwd}"></property>
+	</bean>
+
+	<!-- 配置 Spring 的 org.springframework.jdbc.core.JdbcTemplate -->
+	<bean id="jdbcTemplate" class="org.springframework.jdbc.core.JdbcTemplate">
+		<property name="dataSource" ref="dataSource"></property>
+	</bean>
+	
+	<bean id="studentServiceAspect" class="com.wyl.advice.StudentServiceAspect"></bean>
+
+	<aop:config>
+		<aop:aspect id="studentServiceAspect" ref="studentServiceAspect">
+			<!-- 切点，pointcut，比如加减乘除的service，这就是切面,就是要被记日记的对象 -->
+			<aop:pointcut expression="execution(* com.wyl.service.*.*(..))"
+				id="businessService" />
+			<!-- 切面 aspect，具体的日记方法 -->
+			<aop:before method="doBefore" pointcut-ref="businessService" />
+		</aop:aspect>
+
+
+	</aop:config>
+	
+</beans>

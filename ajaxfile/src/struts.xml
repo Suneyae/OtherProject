@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE struts PUBLIC "-//Apache Software Foundation//DTD Struts Configuration 2.1//EN" "http://struts.apache.org/dtds/struts-2.1.dtd">
+<struts>
+	<package name="struts2" extends="json-default">
+		<action name="fileUploadAction" class="com.ajaxfile.action.FileAction">
+			<result type="json" name="success">
+        		<param name="contentType">
+        			text/html
+        		</param>
+        	</result>
+        	<result type="json" name="error">
+        		<param name="contentType">
+        			text/html
+        		</param>
+        	</result>
+		</action>
+	</package>
+</struts>    

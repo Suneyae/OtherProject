@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns="http://java.sun.com/xml/ns/javaee" xmlns:web="http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
+	xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
+	id="WebApp_ID" version="2.5">
+
+
+	<!-- 配置 Struts2 的 Filter -->
+	<welcome-file-list>
+
+		<!-- <welcome-file>index.jsp</welcome-file> 欢迎页改为MyTag.jsp -->
+		<welcome-file>MyTag.jsp</welcome-file>
+	</welcome-file-list>
+	<!-- 添加微信公众号 -->
+	<servlet>
+		<servlet-name>wechat</servlet-name>
+		<servlet-class>com.test.javaAPI.wechat.WechatServlet</servlet-class>
+
+	</servlet>
+
+	<servlet-mapping>
+		<servlet-name>wechat</servlet-name>
+		<url-pattern>/wechat.do</url-pattern>
+	</servlet-mapping>
+	
+	
+	<!-- 添加微信公众号 -->
+	<servlet>
+		<servlet-name>wechat2</servlet-name>
+		<servlet-class>com.test.javaAPI.wechat.WechatServlet2</servlet-class>
+
+	</servlet>
+
+	<servlet-mapping>
+		<servlet-name>wechat2</servlet-name>
+		<url-pattern>/wechat2.do</url-pattern>
+	</servlet-mapping>
+
+</web-app>

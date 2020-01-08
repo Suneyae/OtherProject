@@ -1,0 +1,42 @@
+<!-- Use this file to deploy some handlers/chains and services      -->
+<!-- Two ways to do this:                                           -->
+<!--   java org.apache.axis.client.AdminClient deploy.wsdd          -->
+<!--      after the axis server is running                          -->
+<!-- or                                                             -->
+<!--   java org.apache.axis.utils.Admin client|server deploy.wsdd   -->
+<!--      from the same directory that the Axis engine runs         -->
+
+<deployment
+    xmlns="http://xml.apache.org/axis/wsdd/"
+    xmlns:java="http://xml.apache.org/axis/wsdd/providers/java">
+
+  <!-- Services from CalculateServiceService WSDL service -->
+
+  <service name="CalculateService" provider="java:RPC" style="wrapped" use="literal">
+      <parameter name="wsdlTargetNamespace" value="http://webservice.sjtu.edu"/>
+      <parameter name="wsdlServiceElement" value="CalculateServiceService"/>
+      <parameter name="schemaQualified" value="http://webservice.sjtu.edu"/>
+      <parameter name="wsdlServicePort" value="CalculateService"/>
+      <parameter name="className" value="edu.sjtu.webservice.CalculateServiceSoapBindingImpl"/>
+      <parameter name="wsdlPortType" value="CalculateService"/>
+      <parameter name="typeMappingVersion" value="1.2"/>
+      <operation name="divide" qname="operNS:divide" xmlns:operNS="http://webservice.sjtu.edu" returnQName="retNS:divideReturn" xmlns:retNS="http://webservice.sjtu.edu" returnType="rtns:float" xmlns:rtns="http://www.w3.org/2001/XMLSchema" soapAction="" >
+        <parameter qname="pns:x" xmlns:pns="http://webservice.sjtu.edu" type="tns:float" xmlns:tns="http://www.w3.org/2001/XMLSchema"/>
+        <parameter qname="pns:y" xmlns:pns="http://webservice.sjtu.edu" type="tns:float" xmlns:tns="http://www.w3.org/2001/XMLSchema"/>
+      </operation>
+      <operation name="multiply" qname="operNS:multiply" xmlns:operNS="http://webservice.sjtu.edu" returnQName="retNS:multiplyReturn" xmlns:retNS="http://webservice.sjtu.edu" returnType="rtns:float" xmlns:rtns="http://www.w3.org/2001/XMLSchema" soapAction="" >
+        <parameter qname="pns:x" xmlns:pns="http://webservice.sjtu.edu" type="tns:float" xmlns:tns="http://www.w3.org/2001/XMLSchema"/>
+        <parameter qname="pns:y" xmlns:pns="http://webservice.sjtu.edu" type="tns:float" xmlns:tns="http://www.w3.org/2001/XMLSchema"/>
+      </operation>
+      <operation name="minus" qname="operNS:minus" xmlns:operNS="http://webservice.sjtu.edu" returnQName="retNS:minusReturn" xmlns:retNS="http://webservice.sjtu.edu" returnType="rtns:float" xmlns:rtns="http://www.w3.org/2001/XMLSchema" soapAction="" >
+        <parameter qname="pns:x" xmlns:pns="http://webservice.sjtu.edu" type="tns:float" xmlns:tns="http://www.w3.org/2001/XMLSchema"/>
+        <parameter qname="pns:y" xmlns:pns="http://webservice.sjtu.edu" type="tns:float" xmlns:tns="http://www.w3.org/2001/XMLSchema"/>
+      </operation>
+      <operation name="plus" qname="operNS:plus" xmlns:operNS="http://webservice.sjtu.edu" returnQName="retNS:plusReturn" xmlns:retNS="http://webservice.sjtu.edu" returnType="rtns:float" xmlns:rtns="http://www.w3.org/2001/XMLSchema" soapAction="" >
+        <parameter qname="pns:x" xmlns:pns="http://webservice.sjtu.edu" type="tns:float" xmlns:tns="http://www.w3.org/2001/XMLSchema"/>
+        <parameter qname="pns:y" xmlns:pns="http://webservice.sjtu.edu" type="tns:float" xmlns:tns="http://www.w3.org/2001/XMLSchema"/>
+      </operation>
+      <parameter name="allowedMethods" value="minus divide multiply plus"/>
+
+  </service>
+</deployment>

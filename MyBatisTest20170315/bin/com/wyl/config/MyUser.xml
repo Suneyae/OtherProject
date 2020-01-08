@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Copyright 2009-2016 the original author or authors. Licensed under the 
+	Apache License, Version 2.0 (the "License"); you may not use this file except 
+	in compliance with the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0 
+	Unless required by applicable law or agreed to in writing, software distributed 
+	under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES 
+	OR CONDITIONS OF ANY KIND, either express or implied. See the License for 
+	the specific language governing permissions and limitations under the License. -->
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="MyUser22">
+	<!-- 配置返回结果所属类 -->
+	<resultMap type="com.wyl.entity.MyUser" id="UserResult">
+		<!-- 在数据库里如果是主键，那么就用<id>标签，其他字段用<column>标签 ，
+			这里的type对应着java代码中的例如： java.sql.Types.BOOLEAN -->
+		<id column="id" jdbcType="INTEGER" property="id" />
+		<!-- column的值对应的是数据库里的字段名,property对应着实体类的属性 -->
+		<result column="username" jdbcType="VARCHAR" property="username" />
+		<!-- <result column="password" jdbcType="VARCHAR" property="password.encrypted" /> -->
+		<result column="administrator" jdbcType="VARCHAR" property="administrator" />
+	</resultMap>
+	<!--Java代码使用示例： SqlSession.selectList("queryMyUserList_wyl"); -->
+	<select id="queryMyUserList_wyl" resultMap="UserResult">
+		SELECT * FROM MyUser
+		WHERE 1=1
+	</select>
+	
+	<select id="queryMyUserListbyName_wyl" parameterType="com.wyl.entity.MyUser" resultMap="UserResult">
+		SELECT ID,USERNAME,PASSWORD,ADMINISTRATOR FROM MyUser
+		WHERE 1=1 
+		<!-- <if test="username !=null and !&quot;&quot;.equals(username.trim())"> -->
+		<if test="username !=null ">
+			and USERNAME like '%'||#{username}||'%' 
+		</if>
+	</select>
+	
+	
+	<!--同一个Mapper文件下， 不能有重复的id -->
+	<!-- <select id="queryMyUserList_wyl" resultMap="UserResult"> SELECT * FROM 
+		MyUser WHERE 1=1 </select> -->
+
+	<select id="find" parameterType="long" resultMap="UserResult">
+		SELECT * FROM
+		MyUser WHERE id = #{id:INTEGER}
+	</select>
+	<delete id="deleteOne" parameterType="int">
+		<!-- where 条件携程 #{_parameter}的形式具体 详见：http://www.imooc.com/video/4350, -->
+		delete from MyUser where ID = #{_parameter}
+	</delete>
+	
+	<!-- 批量删除 -->
+	<delete id="deleteBatch" parameterType="java.util.List">
+		delete from MyUser where id in (
+			<!-- 用逗号隔开item属性值代表list集合中的每一项 -->
+			<foreach collection="list" item="theitem"  >
+				${theitem}
+			</foreach>
+		)
+	</delete>
+</mapper>

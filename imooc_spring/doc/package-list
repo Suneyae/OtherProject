@@ -1,0 +1,15 @@
+com.aop.annotationtype
+com.aop.xmltype
+com.helloworld
+com.helloworld.test
+com.jdbctemplate.jdbc
+com.stringtest
+com.util
+imooc_spring.test.anotation
+imooc_spring.test.anotation.myrepository
+imooc_spring.test.aware
+imooc_spring.test.util
+test
+test.spring
+test.spring.autowired
+test.testdemo
